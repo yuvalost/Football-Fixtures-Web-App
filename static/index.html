@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🏆 Football Fixtures</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <style>
+    body {
+      background: linear-gradient(to right, #e0eafc, #cfdef3);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding-bottom: 60px;
+    }
+
+    .navbar {
+      background-color: #212529;
+    }
+
+    .navbar-brand {
+      color: #f1f1f1;
+      font-weight: bold;
+      font-size: 1.5rem;
+    }
+
+    .ticker {
+      background-color: #ffc107;
+      color: #000;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      width: 100%;
+      padding: 0.5rem;
+    }
+
+    .ticker-content {
+      display: inline-block;
+      padding-left: 100%;
+      animation: scroll-left 50s linear infinite;
+    }
+
+    @keyframes scroll-left {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    h1 {
+      font-weight: 700;
+      margin: 30px 0;
+      text-align: center;
+    }
+
+    .league-container {
+      background-color: #ffffff;
+      border-radius: 15px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+
+    .league-header {
+      background: #007bff;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 1.3rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .match-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 15px;
+      border-bottom: 1px solid #eee;
+      transition: background-color 0.3s;
+    }
+
+    .match-row:last-child {
+      border-bottom: none;
+    }
+
+    .match-row:hover {
+      background-color: #f5f8fa;
+    }
+
+    .team {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .team-logo {
+      height: 28px;
+      width: 28px;
+      object-fit: contain;
+      margin-right: 8px;
+    }
+
+    .team-name {
+      font-weight: 500;
+    }
+
+    .match-time {
+      color: #555;
+      font-size: 0.9rem;
+    }
+
+    .vs {
+      margin: 0 8px;
+      color: #888;
+      font-weight: 500;
+    }
+
+    .badge-live {
+      background-color: red;
+      color: white;
+      padding: 3px 6px;
+      border-radius: 5px;
+      font-size: 0.8rem;
+      margin-left: 10px;
+    }
+
+    .filter-bar {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    #loadMoreBtn {
+      display: block;
+      margin: 30px auto;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <a class="navbar-brand" href="#">⚽ Fixture Center</a>
+    </div>
+  </nav>
+
+  <!-- News Ticker -->
+  <div class="ticker">
+    <div class="ticker-content" id="newsTicker">Loading football news...</div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container mt-4">
+    <h1>Upcoming Football Fixtures</h1>
+
+    <div class="filter-bar">
+      <input type="text" id="searchInput" class="form-control w-50" placeholder="🔍 Search by team name...">
+      <select id="leagueFilter" class="form-select w-25">
+        <option value="">All Leagues</option>
+      </select>
+    </div>
+
+    <div id="fixtures"></div>
+    <button id="loadMoreBtn" class="btn btn-primary">Load More</button>
+  </div>
+
+  <script>
+    let allData = {};
+    let displayed = {};
+    let perPage = 5;
+
+    async function loadFixtures() {
+      const res = await fetch("/fixtures");
+      const data = await res.json();
+      allData = data;
+      displayed = {};
+      populateLeagueFilter(Object.keys(data));
+      renderFixtures();
+    }
+
+    function populateLeagueFilter(leagues) {
+      const select = document.getElementById("leagueFilter");
+      leagues.forEach(l => {
+        const opt = document.createElement("option");
+        opt.value = l;
+        opt.textContent = l;
+        select.appendChild(opt);
+      });
+    }
+
+    function matchFilter(match, search) {
+      const home = match.homeTeam.name.toLowerCase();
+      const away = match.awayTeam.name.toLowerCase();
+      return home.includes(search) || away.includes(search);
+    }
+
+    function isLive(match) {
+      return match.status === "IN_PLAY" || match.status === "LIVE";
+    }
+
+    function renderFixtures() {
+      const search = document.getElementById("searchInput").value.toLowerCase();
+      const leagueFilter = document.getElementById("leagueFilter").value;
+      const container = document.getElementById("fixtures");
+      container.innerHTML = "";
+
+      for (const league in allData) {
+        if (leagueFilter && league !== leagueFilter) continue;
+        const filteredMatches = allData[league].filter(m => matchFilter(m, search));
+        if (!filteredMatches.length) continue;
+
+        const shown = displayed[league] || 0;
+        const slice = filteredMatches.slice(0, shown + perPage);
+        displayed[league] = slice.length;
+
+        const leagueDiv = document.createElement("div");
+        leagueDiv.className = "league-container";
+        const title = document.createElement("div");
+        title.className = "league-header";
+        title.textContent = league;
+        leagueDiv.appendChild(title);
+
+        slice.forEach(match => {
+          const matchRow = document.createElement("div");
+          matchRow.className = "match-row";
+          const utc = new Date(match.utcDate).toLocaleString();
+
+          matchRow.innerHTML = `
+            <div class="team" title="🏟 ${match.venue || 'Unknown venue'} • 📅 ${match.matchday ? 'MD ' + match.matchday : ''}">
+              <img src="${match.homeTeam.crest}" alt="" class="team-logo">
+              <span class="team-name">${match.homeTeam.name}</span>
+              <span class="vs">vs</span>
+              <img src="${match.awayTeam.crest}" alt="" class="team-logo">
+              <span class="team-name">${match.awayTeam.name}</span>
+              ${isLive(match) ? `<span class="badge-live">LIVE</span>` : ''}
+            </div>
+            <div class="match-time"><i class="fa-regular fa-clock"></i> ${utc}</div>
+          `;
+          leagueDiv.appendChild(matchRow);
+        });
+
+        container.appendChild(leagueDiv);
+      }
+
+      document.getElementById("loadMoreBtn").style.display = Object.keys(displayed).some(league => {
+        const total = allData[league].filter(m => matchFilter(m, search));
+        return displayed[league] < total.length;
+      }) ? "block" : "none";
+    }
+
+    // News ticker
+    async function loadNews() {
+      const ticker = document.getElementById("newsTicker");
+      try {
+        const res = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent("https://www.theguardian.com/football/rss"));
+        const result = await res.json();
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(result.contents, "text/xml");
+        const items = Array.from(xml.querySelectorAll("item")).slice(0, 10);
+        const headlines = items.map(item => item.querySelector("title").textContent);
+        ticker.textContent = "📰 " + headlines.join("   •   ");
+      } catch (err) {
+        console.error("Failed to load news:", err);
+        ticker.textContent = "⚠️ Could not load news. Try again later.";
+      }
+    }
+
+    document.getElementById("searchInput").addEventListener("input", () => {
+      displayed = {};
+      renderFixtures();
+    });
+
+    document.getElementById("leagueFilter").addEventListener("change", () => {
+      displayed = {};
+      renderFixtures();
+    });
+
+    document.getElementById("loadMoreBtn").addEventListener("click", () => {
+      renderFixtures();
+    });
+
+    loadFixtures();
+    loadNews();
+  </script>
+</body>
+</html>
