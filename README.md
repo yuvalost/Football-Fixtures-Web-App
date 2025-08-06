@@ -19,7 +19,7 @@ A full-stack web application built with Flask and vanilla JavaScript that displa
 
 ## 📸 Preview
 
-![App Screenshot](preview.png)
+![App Screenshot](docs/preview.png)
 
 ---
 
