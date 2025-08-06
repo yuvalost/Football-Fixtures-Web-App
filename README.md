@@ -1,47 +1,58 @@
-# 🏆 Football Fixtures App
+# 🏆 Football Fixtures Web App
 
-![Build](https://img.shields.io/badge/build-passing-brightgreen) ![License](https://img.shields.io/badge/license-MIT-blue.svg) ![Docker](https://img.shields.io/badge/docker-ready-blue)
+A full-stack web application built with Flask and vanilla JavaScript that displays live and upcoming football fixtures for the Premier League, La Liga, and Serie A. Includes a news ticker, league filters, and modern UI styling.
 
-A modern football fixtures web application that displays upcoming matches from major leagues (Premier League, La Liga, Serie A), with live status, league filters, team search, and real-time news ticker.
-
-> Built with **Flask**, **HTML/JS**, and **Bootstrap 5** — containerized with **Docker**, and fetches data from football APIs.
+![Docker Pulls](https://img.shields.io/docker/pulls/yuvalost/football-fixtures-app?style=for-the-badge)
 
 ---
 
-## 🌍 Features
+## 🧰 Tech Stack
 
-- 🔍 Search bar by team name
-- 🎯 Filter fixtures by league
-- 🔄 Load more fixtures (pagination)
-- 🟢 "LIVE" badge for active matches
-- 📅 Tooltip with matchday and stadium
-- 📰 Real-time football news ticker (Guardian RSS)
-- 🎨 Responsive & modern UI with light gradient background
-- 🐳 Full Docker support for local or cloud deployment
+- ⚙️ **Backend**: Python + Flask  
+- 🎨 **Frontend**: HTML5, CSS3, Bootstrap 5, JavaScript (vanilla)  
+- 📦 **Containerization**: Docker  
+- 🔁 **Automation**: GitHub Actions CI/CD  
+- 🔐 **Secrets**: GitHub Actions Encrypted Secrets  
+- 📡 **Data Source**: [football-data.org](https://www.football-data.org/)
 
 ---
 
 ## 📸 Preview
 
-![App Screenshot](./static/preview.png) <!-- You can upload a screenshot to static/preview.png -->
+![App Screenshot](preview.png)
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Features
 
-### 1. Clone the Repo
+- Live and upcoming match fixtures
+- Search by team name
+- Filter by league (Premier League, La Liga, Serie A)
+- Pagination / Load more
+- Live match indicator (🔴 LIVE)
+- News ticker from The Guardian (RSS)
+- Responsive design with Bootstrap
+
+---
+
+## 🧪 How to Run Locally
+
+1. Clone the repository:
 
 ```bash
-git clone https://github.com/yuvalost/football-fixtures-app.git
-cd football-fixtures-app
+git clone https://github.com/yuvalost/Football-Fixtures-Web-App.git
+cd Football-Fixtures-Web-App
 
-Language	Python 3, JavaScript
-Framework	Flask (Backend)
-Frontend	HTML5, Bootstrap 5, Vanilla JS
-API Source	Football-Data.org (fixtures)
-The Guardian RSS (news)
-Proxy	AllOrigins (to bypass CORS for RSS)
-Web Server	gunicorn (in Docker)
-Container	Docker, Docker Hub
-Development	VS Code, Git
-Deployment	Docker CLI / optional Render, Railway, etc.
+Create a .env file with your football-data.org API key:
+FOOTBALL_API_KEY=your_real_api_key_here
+
+Build the Docker image:
+docker build -t yuvalost/football-fixtures-app .
+Run the container:
+docker run -p 5000:5000 --env-file .env yuvalost/football-fixtures-app
+
+Open http://localhost:5000 in your browser.
+
+📦 Docker Hub
+Pull the image:
+docker pull yuvalost/football-fixtures-app:latest
