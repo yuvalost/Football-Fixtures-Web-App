@@ -23,7 +23,17 @@ jobs:
     - name: Create .env file from secret
       run: echo "${{ secrets.API_KEY }}" > .env
 
-    - name: Build and push Docker image
+    - name: Set Docker tag
+      id: vars
       run: |
-        docker build -t yuvalost/football-fixtures-app:latest .
-        docker push yuvalost/football-fixtures-app:latest
+        TAG=$(echo "${GITHUB_REF##*/}")
+        echo "tag=${TAG}" >> $GITHUB_OUTPUT
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: |
+          yuvalost/football-fixtures-app:latest
+          yuvalost/football-fixtures-app:${{ steps.vars.outputs.tag }}
