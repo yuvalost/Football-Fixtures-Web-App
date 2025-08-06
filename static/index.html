@@ -179,6 +179,7 @@
 
     function populateLeagueFilter(leagues) {
       const select = document.getElementById("leagueFilter");
+      select.innerHTML = `<option value="">All Leagues</option>`;
       leagues.forEach(l => {
         const opt = document.createElement("option");
         opt.value = l;
@@ -247,7 +248,6 @@
       }) ? "block" : "none";
     }
 
-    // News ticker
     async function loadNews() {
       const ticker = document.getElementById("newsTicker");
       try {

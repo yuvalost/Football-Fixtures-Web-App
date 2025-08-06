@@ -1,8 +1,21 @@
-from flask import Blueprint, jsonify
-from .fetch import get_fixtures
+from flask import Blueprint, jsonify, Response
+import requests
+from app.fetch import get_fixtures
 
-bp = Blueprint('routes', __name__)
+routes = Blueprint("routes", __name__)
 
-@bp.route("/fixtures", methods=["GET"])
+@routes.route("/fixtures")
 def fixtures():
-    return jsonify(get_fixtures())
+    try:
+        data = get_fixtures()
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@routes.route("/news")
+def news():
+    try:
+        res = requests.get("https://www.theguardian.com/football/rss", timeout=5)
+        return Response(res.content, content_type="application/xml")
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

@@ -21,7 +21,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Create .env file from secret
-      run: echo "${{ secrets.API_KEY }}" > .env
+      run: echo "FOOTBALL_API_KEY=${{ secrets.API_KEY }}" > .env
 
     - name: Set Docker tag
       id: vars

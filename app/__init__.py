@@ -1,5 +1,5 @@
 from flask import Flask, send_from_directory
-from .routes import bp as routes_bp
+from .routes import routes  
 import os
 
 def create_app():
@@ -8,7 +8,7 @@ def create_app():
         static_folder=os.path.join(os.path.dirname(__file__), '..', 'static'),
         static_url_path=''
     )
-    app.register_blueprint(routes_bp)
+    app.register_blueprint(routes)  
 
     @app.route('/')
     def index():
